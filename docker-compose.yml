@@ -7,7 +7,9 @@ services:
     volumes:
         - .:/code
     links:
-     - redis
+        - redis
+    environment:
+        - FLASK_ENV=development
 
   redis:
     image: redis

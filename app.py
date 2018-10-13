@@ -1,7 +1,7 @@
 import redis
 
-from flask import Flask
-from flask import g
+from flask import Flask, g, request, jsonify, make_response
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -24,6 +24,15 @@ def before_request():
 def index():
     g.db.incr('hits')
     return 'Pycon tweets sddtc has been viewed %s time(s).' % g.db.get('hits')
+
+@app.route('/<username>/tweet', methods=['POST'])
+def add_tweet(username):
+    tweet_content = request.json['tweet_content']
+    tweet = {'username': username, 'content': tweet_content, 'created_at': datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}
+    
+    response = jsonify(tweet)
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response, 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
