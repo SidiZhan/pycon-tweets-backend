@@ -2,8 +2,10 @@ import redis
 
 from flask import Flask, g, request, jsonify, make_response
 from datetime import datetime
+from json import dumps,loads
 
 app = Flask(__name__)
+myTweets = []
 
 DB_HOST = 'redis'
 DB_PORT = 6379
@@ -29,8 +31,16 @@ def index():
 def add_tweet(username):
     tweet_content = request.json['tweet_content']
     tweet = {'username': username, 'content': tweet_content, 'created_at': datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}
-    
-    response = jsonify(tweet)
+    myTweets.append(tweet)
+
+    response = make_response(jsonify(tweet))
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response, 200
+
+@app.route('/<username>/tweets', methods=['GET'])
+def list_tweets(username):
+
+    response = make_response(dumps(myTweets))
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response, 200
 
