@@ -44,5 +44,13 @@ def list_tweets(username):
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response, 200
 
+@app.route('/<username>/tweets', methods=['DELETE'])
+def delete_tweets(username):
+    myTweets.clear()
+
+    response = make_response(dumps(myTweets))
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response, 200
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
