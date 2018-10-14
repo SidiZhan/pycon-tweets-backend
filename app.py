@@ -4,6 +4,8 @@ from flask import Flask, g, request, jsonify, make_response
 from datetime import datetime
 from json import dumps,loads
 
+from utils import TweetsEncoder
+
 app = Flask(__name__)
 myTweets = []
 
@@ -29,9 +31,10 @@ def index():
 
 @app.route('/<username>/tweet', methods=['POST'])
 def add_tweet(username):
-    tweet_content = request.json['tweet_content']
+    tweet_content = request.form['tweet_content']
     tweet = {'username': username, 'content': tweet_content, 'created_at': datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}
-    myTweets.append(tweet)
+
+    g.db.lpush(username, dumps(tweet, cls=TweetsEncoder, ensure_ascii=False))
 
     response = make_response(jsonify(tweet))
     response.headers['Access-Control-Allow-Origin'] = '*'
@@ -39,16 +42,17 @@ def add_tweet(username):
 
 @app.route('/<username>/tweets', methods=['GET'])
 def list_tweets(username):
+    tweets = dumps(g.db.lrange(username, 0, -1), cls=TweetsEncoder, ensure_ascii=False)
 
-    response = make_response(dumps(myTweets))
+    response = make_response(dumps(tweets))
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response, 200
 
 @app.route('/<username>/tweets', methods=['DELETE'])
 def delete_tweets(username):
-    myTweets.clear()
+    g.db.delete(username)
 
-    response = make_response(dumps(myTweets))
+    response = make_response('{}')
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response, 200
 
