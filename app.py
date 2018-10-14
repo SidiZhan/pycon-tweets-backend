@@ -31,6 +31,8 @@ def add_tweet(username):
 def list_tweets(username):
     tweets = dumps(g.db.lrange(username, 0, -1), cls=TweetsEncoder, ensure_ascii=False)
 
+    app.logger.debug(tweets)
+
     response = make_response(dumps(tweets))
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response, 200
