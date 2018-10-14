@@ -1,24 +1,11 @@
-import redis
-
 from flask import Flask, g, request, jsonify, make_response
 from datetime import datetime
 from json import dumps,loads
 
 from utils import TweetsEncoder
+from db_connector import init_db
 
 app = Flask(__name__)
-myTweets = []
-
-DB_HOST = 'redis'
-DB_PORT = 6379
-DB_NO = 0
-
-def init_db():
-    db = redis.StrictRedis(
-        host=DB_HOST,
-        port=DB_PORT,
-        db=DB_NO)
-    return db
 
 @app.before_request
 def before_request():
